@@ -41,6 +41,9 @@ def webhook():
     if not data:
         return jsonify({"status": "error", "message": "Aucune donnée reçue"}), 400
 
+    # Afficher les données reçues pour inspection
+    print("Données reçues :", data)
+
     alert_name = data.get('title', 'Alerte sans titre')
     alert_state = data.get('state', 'Inconnu')
     alert_message = data.get('message', 'Pas de message')
@@ -49,9 +52,13 @@ def webhook():
     # Extraction de la valeur de "B"
     value_b = None
     for match in eval_matches:
-        if match.get('metric') == "B":  # Cherche spécifiquement la métrique "B"
+        print("Évaluation individuelle :", match)  # Log pour chaque correspondance
+        if match.get('metric') == "B":  # Chercher spécifiquement la métrique "B"
             value_b = match.get('value')
             break
+
+    # Log pour vérifier la valeur extraite
+    print("Valeur extraite pour B :", value_b)
 
     # Construire le contenu de l'email
     html_content = f"""
