@@ -8,9 +8,9 @@ app = Flask(__name__)
 
 # Fonction pour envoyer un e-mail
 def send_email(subject, body):
-    sender_email = os.getenv("EMAIL_USER")  # Charger l'e-mail depuis les variables d'environnement
-    sender_password = os.getenv("EMAIL_PASS")  # Charger le mot de passe ou jeton SMTP
-    recipient_email = os.getenv("EMAIL_DEST")  # Remplacez par l'adresse du destinataire
+    sender_email = "votre-email@votredomaine.com"  # Remplacez par votre adresse e-mail OVH
+    sender_password = "votre-mot-de-passe"  # Remplacez par le mot de passe de votre compte OVH
+    recipient_email = "destinataire-email@domaine.com"  # Remplacez par l'adresse du destinataire
 
     if not sender_email or not sender_password:
         print("Erreur : Les variables d'environnement EMAIL_USER et EMAIL_PASS ne sont pas définies.")
@@ -24,9 +24,9 @@ def send_email(subject, body):
     msg.attach(MIMEText(body, 'plain'))
 
     try:
-        # Connexion au serveur SMTP
-        with smtplib.SMTP('smtp.gmail.com', 587) as server:  # Utilisez un autre serveur si nécessaire
-            server.starttls()
+        # Connexion au serveur SMTP OVH
+        with smtplib.SMTP('ssl0.ovh.net', 587) as server:  # Utilisez le port 587 pour STARTTLS
+            server.starttls()  # Sécuriser la connexion
             server.login(sender_email, sender_password)
             server.send_message(msg)
             print("E-mail envoyé avec succès !")
@@ -75,5 +75,5 @@ def webhook():
 
 # Point d'entrée de l'application
 if __name__ == '__main__':
-    # Définir le port et l'hôte pour Render
+    # Définir le port et l'hôte pour Render ou localhost
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
