@@ -41,19 +41,15 @@ def webhook():
     if not data:
         return jsonify({"status": "error", "message": "Aucune donnée reçue"}), 400
 
-    # Afficher la structure complète des données reçues (pour debug)
-    print("Données reçues : ", data)
-
     alert_name = data.get('title', 'Alerte sans titre')
     alert_message = data.get('message', 'Pas de message')
 
-    # Récupérer la valeur mesurée, par exemple la valeur "B" dans "evalMatches"
-    eval_matches = data.get('evalMatches', [])
+    # Récupérer la valeur mesurée, par exemple la valeur "B" dans "values"
     values = "Valeur inconnue"
-    for match in eval_matches:
-        print("Match : ", match)  # Debug pour voir les données de chaque match
-        if match.get("metric") == "B":  # Assurez-vous que le bon nom de métrique est utilisé
-            values = f"B = {match.get('value', 'Inconnu')}"  # Prendre la valeur de B
+    for alert in data.get("alerts", []):
+        # Extract the "B" value from each alert's "values"
+        if "values" in alert and "B" in alert["values"]:
+            values = f"B = {alert['values']['B']}"
 
     # Construire l'e-mail avec la valeur mesurée
     html_content = f"""
