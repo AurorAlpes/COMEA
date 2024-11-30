@@ -69,23 +69,29 @@ def webhook():
     if not data:
         return jsonify({"status": "error", "message": "Aucune donnée reçue"}), 400
 
-    # Extraire les informations depuis la requête
     alert_name = data.get('title', 'Alerte sans titre')
     alert_state = data.get('state', 'Inconnu')
     alert_message = data.get('message', 'Pas de message')
     eval_matches = data.get('evalMatches', [])
 
-    # Construire le message personnalisé pour l'e-mail
-    custom_message = {
-        'alert_name': alert_name,
-        'alert_state': alert_state,
-        'alert_message': alert_message,
-        'evalMatches': eval_matches
-    }
+    # Extraction de la valeur de "B"
+    value_b = None
+    for match in eval_matches:
+        if match.get('metric') == "B":  # Cherche spécifiquement la métrique "B"
+            value_b = match.get('value')
+            break
 
-    # Envoyer l'e-mail avec le sujet modifié
-    email_subject = f"COMEA Alerte : {alert_name}"
-    send_email(email_subject, custom_message)
+    # Construction du message d'e-mail
+    custom_message = f"""
+    🚨 **COMEA Alerte !**
+    - **Nom de l'alerte :** {alert_name}
+    - **Valeur Mesurée (B) :** {value_b if value_b is not None else 'Non disponible'}
+    """
+
+    print(custom_message)  # Afficher le message dans les logs
+
+    # Envoyer l'e-mail avec le format HTML
+    send_email(f"COMEA Alerte : {alert_name}", custom_message)
 
     return jsonify({"status": "success", "message": "Webhook reçu"}), 200
 
