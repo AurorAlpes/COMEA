@@ -21,26 +21,27 @@ def send_email(subject, body):
     msg['To'] = recipient_email
     msg['Subject'] = subject
 
-    # Ici, on utilise du HTML pour le corps de l'e-mail
+    # Construire le contenu HTML de l'e-mail
     html_body = f"""
     <html>
     <body style="font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333;">
         <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 10px;">
-            <h2 style="color: #d9534f;">🚨 Alerte Grafana Déclenchée !</h2>
-            <p><strong>Nom de l'alerte:</strong> {subject}</p>
-            <p><strong>Statut:</strong> {body.get('alert_state', 'Inconnu')}</p>
-            <p><strong>Message:</strong> {body.get('alert_message', 'Pas de message')}</p>
+            <h2 style="color: #d9534f;">🚨 COMEA Alerte Déclenchée !</h2>
+            <p><strong>Nom de l'alerte :</strong> {body.get('alert_name', 'Alerte sans titre')}</p>
+            <p><strong>Statut :</strong> {body.get('alert_state', 'Inconnu')}</p>
+            <p><strong>Message :</strong> {body.get('alert_message', 'Pas de message')}</p>
 
             <hr style="border: 1px solid #ddd;">
 
-            <h4 style="color: #5bc0de;">Détails :</h4>
+            <h4 style="color: #5bc0de;">Valeurs Mesurées :</h4>
             <ul>
     """
 
+    # Ajouter les détails des mesures dans une liste HTML
     for match in body.get('evalMatches', []):
         metric = match.get('metric', 'N/A')
         value = match.get('value', 'N/A')
-        html_body += f"<li><strong>{metric}:</strong> {value}</li>"
+        html_body += f"<li><strong>{metric} :</strong> {value}</li>"
 
     html_body += """
             </ul>
@@ -68,19 +69,23 @@ def webhook():
     if not data:
         return jsonify({"status": "error", "message": "Aucune donnée reçue"}), 400
 
+    # Extraire les informations depuis la requête
     alert_name = data.get('title', 'Alerte sans titre')
     alert_state = data.get('state', 'Inconnu')
     alert_message = data.get('message', 'Pas de message')
     eval_matches = data.get('evalMatches', [])
 
+    # Construire le message personnalisé pour l'e-mail
     custom_message = {
+        'alert_name': alert_name,
         'alert_state': alert_state,
         'alert_message': alert_message,
         'evalMatches': eval_matches
     }
 
-    # Envoyer l'e-mail avec le format HTML
-    send_email(f"Alerte Grafana: {alert_name}", custom_message)
+    # Envoyer l'e-mail avec le sujet modifié
+    email_subject = f"COMEA Alerte : {alert_name}"
+    send_email(email_subject, custom_message)
 
     return jsonify({"status": "success", "message": "Webhook reçu"}), 200
 
