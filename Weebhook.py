@@ -41,6 +41,7 @@ def webhook():
     if not data:
         return jsonify({"status": "error", "message": "Aucune donnée reçue"}), 400
 
+    alert_name = data.get('title', 'Alerte sans titre')
     alert_message = data.get('message', 'Pas de message')
 
     # Construire l'e-mail en utilisant le message personnalisé
@@ -48,14 +49,14 @@ def webhook():
     <html>
     <body style="font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333;">
         <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 10px;">
-            <h2 style="color: #d9534f;">🚨 COMEA Alerte Déclenchée !</h2>
-            <p>{alert_message}</p>
+            <h2 style="color: #d9534f;">🚨 COMEA Alerte !</h2>
+             <p><strong>Valeur Mesurée :</strong> M-Class Flare</p>
         </div>
     </body>
     </html>
     """
 
-    send_email(f"COMEA Alerte", html_content)
+    send_email(f"COMEA Alerte : {alert_name}", html_content)
     return jsonify({"status": "success", "message": "Webhook reçu"}), 200
 
 
