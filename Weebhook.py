@@ -7,10 +7,10 @@ from email.mime.multipart import MIMEMultipart
 app = Flask(__name__)
 
 # Fonction pour envoyer un e-mail
-def send_email(subject, body):
-    sender_email = os.getenv("EMAIL_USER")  # Charger l'e-mail depuis les variables d'environnement
-    sender_password = os.getenv("EMAIL_PASS")  # Charger le mot de passe ou jeton SMTP
-    recipient_email = os.getenv("EMAIL_DEST")  # Remplacer par l'adresse du destinataire
+def send_email(subject, html_content):
+    sender_email = os.getenv("EMAIL_USER")  # Votre email d'expédition
+    sender_password = os.getenv("EMAIL_PASS")  # Votre mot de passe ou jeton SMTP
+    recipient_email = os.getenv("EMAIL_DEST")  # Email destinataire
 
     if not sender_email or not sender_password:
         print("Erreur : Les variables d'environnement EMAIL_USER et EMAIL_PASS ne sont pas définies.")
@@ -21,36 +21,8 @@ def send_email(subject, body):
     msg['To'] = recipient_email
     msg['Subject'] = subject
 
-    # Construire le contenu HTML de l'e-mail
-    html_body = f"""
-    <html>
-    <body style="font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333;">
-        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 10px;">
-            <h2 style="color: #d9534f;">🚨 COMEA Alerte Déclenchée !</h2>
-            <p><strong>Nom de l'alerte :</strong> {body.get('alert_name', 'Alerte sans titre')}</p>
-            <p><strong>Statut :</strong> {body.get('alert_state', 'Inconnu')}</p>
-            <p><strong>Message :</strong> {body.get('alert_message', 'Pas de message')}</p>
-
-            <hr style="border: 1px solid #ddd;">
-
-            <h4 style="color: #5bc0de;">Valeurs Mesurées :</h4>
-            <ul>
-    """
-
-    # Ajouter les détails des mesures dans une liste HTML
-    for match in body.get('evalMatches', []):
-        metric = match.get('metric', 'N/A')
-        value = match.get('value', 'N/A')
-        html_body += f"<li><strong>{metric} :</strong> {value}</li>"
-
-    html_body += """
-            </ul>
-        </div>
-    </body>
-    </html>
-    """
-
-    msg.attach(MIMEText(html_body, 'html'))
+    # Ajouter le contenu HTML
+    msg.attach(MIMEText(html_content, 'html'))
 
     try:
         with smtplib.SMTP('ssl0.ovh.net', 587) as server:
@@ -81,17 +53,23 @@ def webhook():
             value_b = match.get('value')
             break
 
-    # Construction du message d'e-mail
-    custom_message = f"""
-    🚨 **COMEA Alerte !**
-    - **Nom de l'alerte :** {alert_name}
-    - **Valeur Mesurée (B) :** {value_b if value_b is not None else 'Non disponible'}
+    # Construire le contenu de l'email
+    html_content = f"""
+    <html>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 10px;">
+            <h2 style="color: #d9534f;">🚨 COMEA Alerte Déclenchée !</h2>
+            <p><strong>Nom de l'alerte :</strong> {alert_name}</p>
+            <p><strong>Statut :</strong> {alert_state}</p>
+            <p><strong>Valeur Mesurée (B) :</strong> {value_b if value_b is not None else 'Non disponible'}</p>
+            <p><strong>Message :</strong> {alert_message}</p>
+        </div>
+    </body>
+    </html>
     """
 
-    print(custom_message)  # Afficher le message dans les logs
-
     # Envoyer l'e-mail avec le format HTML
-    send_email(f"COMEA Alerte : {alert_name}", custom_message)
+    send_email(f"COMEA Alerte : {alert_name}", html_content)
 
     return jsonify({"status": "success", "message": "Webhook reçu"}), 200
 
