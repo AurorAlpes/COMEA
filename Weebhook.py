@@ -41,16 +41,31 @@ def webhook():
     if not data:
         return jsonify({"status": "error", "message": "Aucune donnée reçue"}), 400
 
+    # Afficher la structure complète des données reçues (pour debug)
+    print("Données reçues : ", data)
+
     alert_name = data.get('title', 'Alerte sans titre')
     alert_message = data.get('message', 'Pas de message')
 
-    # Construire l'e-mail en utilisant le message personnalisé
+    # Récupérer la valeur mesurée, par exemple la valeur "B" dans "evalMatches"
+    eval_matches = data.get('evalMatches', [])
+    values = "Valeur inconnue"
+    for match in eval_matches:
+        print("Match : ", match)  # Debug pour voir les données de chaque match
+        if match.get("metric") == "B":  # Assurez-vous que le bon nom de métrique est utilisé
+            values = f"B = {match.get('value', 'Inconnu')}"  # Prendre la valeur de B
+
+    # Construire l'e-mail avec la valeur mesurée
     html_content = f"""
     <html>
     <body style="font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333;">
         <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 10px;">
             <h2 style="color: #d9534f;">🚨 COMEA Alerte !</h2>
-             <p><strong>Valeur Mesurée :</strong> M-Class Flare</p>
+            <p><strong>Nom de l'alerte:</strong> {alert_name}</p>
+            <p><strong>Statut:</strong> {data.get('state', 'Inconnu')}</p>
+            <p><strong>Message:</strong> {alert_message}</p>
+            <hr>
+            <p><strong>Valeur Mesurée :</strong> {values}</p>
         </div>
     </body>
     </html>
