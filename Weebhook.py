@@ -8,9 +8,9 @@ app = Flask(__name__)
 
 # Fonction pour envoyer un e-mail
 def send_email(subject, body):
-    sender_email = "votre-email@votredomaine.com"  # Remplacez par votre adresse e-mail OVH
-    sender_password = "votre-mot-de-passe"  # Remplacez par le mot de passe de votre compte OVH
-    recipient_email = "destinataire-email@domaine.com"  # Remplacez par l'adresse du destinataire
+    sender_email = os.getenv("EMAIL_USER")  # Charger l'e-mail depuis les variables d'environnement
+    sender_password = os.getenv("EMAIL_PASS")  # Charger le mot de passe ou jeton SMTP
+    recipient_email = os.getenv("EMAIL_DEST")  # Remplacer par l'adresse du destinataire
 
     if not sender_email or not sender_password:
         print("Erreur : Les variables d'environnement EMAIL_USER et EMAIL_PASS ne sont pas définies.")
