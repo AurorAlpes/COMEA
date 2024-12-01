@@ -30,6 +30,15 @@ def send_email(subject, html_content):
         print(f"Erreur lors de l'envoi de l'e-mail : {e}")
 
 
+def format_time(iso_time):
+    """
+    Convertit une chaîne de temps ISO 8601 en un format lisible (UTC).
+    """
+    if iso_time:
+        return datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d %H:%M:%S (UTC)")
+    return "En cours"
+
+
 # Route pour gérer le webhook
 @app.route("/webhook", methods=["POST"])
 def grafana_webhook():
@@ -42,7 +51,9 @@ def grafana_webhook():
         message1 = alert.get("annotations", {}).get("summary", "No description")
         message2 = alert.get("annotations", {}).get("description", "No description")
         value = alert.get("valueString", "No value provided")
-        
+        starts_at = format_time(alert.get("startsAt"))
+        ends_at = format_time(alert.get("endsAt"))
+
         # Choisir le message en fonction du statut
         if status == "firing":
             message = message1
@@ -52,10 +63,12 @@ def grafana_webhook():
             message = "Unknown status"
 
         # Construire le sujet et le corps de l'e-mail
-        subject = f"Grafana Alert: {alert_name} ({status.capitalize()})"
+        subject = f"Grafana Alert: {alert_name}"
         body = (
             f"Alert Name: {alert_name}\n"
             f"Status: {status}\n"
+            f"Start Time: {starts_at}\n"
+            f"End Time: {ends_at}\n"
             f"Message: {message}"
         )
         
