@@ -39,15 +39,21 @@ def webhook():
 
     alerts = data["alerts"]
 
+    # Récupérer les informations communes du payload
+    receiver = data.get("receiver", "Receiver inconnu")
+    external_url = data.get("externalURL", "Aucune URL externe")
+    version = data.get("version", "Version inconnue")
+    title = data.get("title", "Titre inconnu")
+    state = data.get("state", "État inconnu")
+    message = data.get("message", "Aucun message")
+
     for alert in alerts:
-        alert_status = alert.get("status", "unknown")
-        alert_name = alert.get("alertname", "Alerte sans titre")
-        timestamp = alert.get("timestamp", "Inconnue")
-        
-        # Récupérer les valeurs spécifiques à l'alerte
-        alert_data = alert.get("data", {})
-        alert_description = alert_data.get("description", "Aucune description")
-        runbook_url = alert_data.get("runbook_url", "")
+        alert_status = alert.get("status", "inconnu")
+        alert_title = alert.get("alertname", "Alerte sans titre")  # Si `alertname` est disponible, sinon vous pouvez l'ignorer
+        timestamp = alert.get("startsAt", "Inconnue")  # Ou utilisez `endsAt` selon la disponibilité
+        alert_annotations = alert.get("annotations", {})
+        alert_description = alert_annotations.get("description", "Aucune description")
+        runbook_url = alert_annotations.get("runbook_url", "Aucun URL de runbook")
         alert_values = alert.get("values", {})
 
         # Construire le contenu HTML dynamique pour chaque alerte
@@ -56,7 +62,7 @@ def webhook():
         <body style="font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333;">
             <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 10px;">
                 <h2 style="color: #d9534f;">🚨 Alerte Grafana</h2>
-                <p><strong>Nom de l'alerte :</strong> {alert_name}</p>
+                <p><strong>Nom de l'alerte :</strong> {alert_title}</p>
                 <p><strong>Statut :</strong> {alert_status}</p>
                 <p><strong>Date :</strong> {timestamp}</p>
                 <p><strong>Description :</strong> {alert_description}</p>
@@ -74,13 +80,21 @@ def webhook():
 
         html_content += """
                 </ul>
+                <p><strong>Informations supplémentaires :</strong></p>
+                <ul>
+                    <li><strong>Receiver :</strong> {receiver}</li>
+                    <li><strong>External URL :</strong> <a href="{external_url}" target="_blank">{external_url}</a></li>
+                    <li><strong>Version :</strong> {version}</li>
+                    <li><strong>State :</strong> {state}</li>
+                    <li><strong>Message :</strong> {message}</li>
+                </ul>
             </div>
         </body>
         </html>
-        """
+        """.format(receiver=receiver, external_url=external_url, version=version, state=state, message=message)
 
         # Envoyer un email pour chaque alerte
-        send_email(f"Alerte Grafana : {alert_name}", html_content)
+        send_email(f"Alerte Grafana : {alert_title}", html_content)
 
     return jsonify({"status": "success", "message": "Webhook reçu et traité"}), 200
 
