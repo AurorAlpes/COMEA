@@ -6,29 +6,6 @@ from email.mime.text import MIMEText
 
 app = Flask(__name__)
 
-# Fonction pour envoyer un e-mail
-def format_time(iso_time):
-    """
-    Convertit une chaîne de temps ISO 8601 en un format lisible (UTC).
-    Retourne "En cours" si iso_time est vide, None, ou invalide.
-    """
-    if not iso_time or iso_time.lower() in {"null", "none"}:
-        return "En cours"
-    try:
-        # Tronquer les fractions excessives à 6 chiffres, si présent
-        if "." in iso_time:
-            iso_time = iso_time.split("Z")[0]  # Supprime 'Z'
-            base_time, fractional = iso_time.split(".")
-            fractional = fractional[:6]  # Garde 6 chiffres max
-            iso_time = f"{base_time}.{fractional}Z"  # Reconstruit
-        return datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d %H:%M:%S (UTC)")
-    except (ValueError, AttributeError):
-        # Cas sans fractions de secondes ou si iso_time est invalide
-        try:
-            return datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d %H:%M:%S (UTC)")
-        except (ValueError, AttributeError):
-            return "En cours"
-
 
 def send_email(subject, html_content):
     sender_email = os.getenv("EMAIL_USER")
@@ -65,26 +42,39 @@ def grafana_webhook():
         alert_name = alert.get("labels", {}).get("alertname", "No alert name")
         message1 = alert.get("annotations", {}).get("summary", "No description")
         message2 = alert.get("annotations", {}).get("description", "No description")
-        value = alert.get("valueString", "No value provided")
+        
+        # Fonction pour formater les heures
+        def format_time(iso_time):
+            if not iso_time:
+                return "Unknown time"
+            try:
+                # Traiter les formats avec ou sans millisecondes
+                if "." in iso_time:
+                    return datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d %H:%M:%S (UTC)")
+                else:
+                    return datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d %H:%M:%S (UTC)")
+            except ValueError:
+                return "Invalid time format"
+        
+        # Récupérer les heures de début et de fin
         starts_at = format_time(alert.get("startsAt"))
-        ends_at = format_time(alert.get("endsAt"))
-
-        # Choisir le message en fonction du statut
+        ends_at = format_time(alert.get("endsAt")) if status == "resolved" else "En cours"
+        
+        # Déterminer le message à afficher
         if status == "firing":
-            message = message1
+            message = f"{message1}\nEnd Time: {ends_at}"
         elif status == "resolved":
-            message = message2
+            message = f"{message1}\n{message2}\nEnd Time: {ends_at}"
         else:
             message = "Unknown status"
 
         # Construire le sujet et le corps de l'e-mail
-        subject = f"Grafana Alert: {alert_name}"
+        subject = f"Grafana Alert: {alert_name} ({status.capitalize()})"
         body = (
             f"Alert Name: {alert_name}\n"
             f"Status: {status}\n"
             f"Start Time: {starts_at}\n"
-            f"End Time: {ends_at}\n"
-            f"Message: {message}"
+            f"{message}"
         )
         
         # Envoyer l'e-mail
