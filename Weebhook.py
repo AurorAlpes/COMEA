@@ -31,55 +31,23 @@ def send_email(subject, html_content):
 
 
 # Route pour gérer le webhook
-@app.route('/webhook', methods=['POST'])
-def webhook():
+@app.route("/webhook", methods=["POST"])
+def grafana_webhook():
     data = request.json
-
-    if not data:
-        return jsonify({"status": "error", "message": "Aucune donnée reçue"}), 400
-
-    try:
-        # Initialiser un message vide pour les valeurs
-        alert_data = "Aucune donnée disponible"
-
-        # Vérifier que les alertes sont présentes
-        if "alerts" in data and isinstance(data["alerts"], list) and data["alerts"]:
-            # Traiter la première alerte
-            first_alert = data["alerts"][0]
-            test = data["description"]
-            # Récupérer les données envoyées dans 'data'
-            alert_data = first_alert.get("data", {})
-
-        # Construire un message à partir des données reçues
-        html_content = f"""
-        <html>
-        <body style="font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333;">
-            <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 10px;">
-                <h2 style="color: #d9534f;">🚨 Alerte Grafana</h2>
-                <p><strong>Données :</strong> {test}</p>
-                <ul>
-        """
-
-        # Ajouter chaque clé et valeur dans un <li> HTML
-        for key, value in alert_data.items():
-            html_content += f"<li><strong>{key} :</strong> {value}</li>"
-
-        html_content += """
-                </ul>
-            </div>
-        </body>
-        </html>
-        """
-
-        # Envoyer l'email
-        send_email("Alerte Grafana", html_content)
-
-        return jsonify({"status": "success", "message": "Webhook traité et email envoyé"}), 200
-
-    except Exception as e:
-        print(f"Erreur lors du traitement du webhook : {e}")
-        return jsonify({"status": "error", "message": "Erreur interne lors du traitement"}), 500
-
+    if data:
+        status = data.get("status", "unknown")
+        alert_name = data.get("alerts", [{}])[0].get("labels", {}).get("alertname", "No alert name")
+        message = data.get("alerts", [{}])[0].get("annotations", {}).get("description", "No description")
+        value = data.get("alerts", [{}])[0].get("valueString", "No value provided")
+        
+        # Construire le sujet et le corps de l'e-mail
+        subject = f"Grafana Alert: {alert_name} - {status}"
+        body = f"Alert Name: {alert_name}\nStatus: {status}\nValue: {value}\nMessage: {message}"
+        
+        # Envoyer l'e-mail
+        send_email(subject, body)
+        return "Email sent", 200
+    return "No data received", 400
 
 
 # Point d'entrée de l'application
