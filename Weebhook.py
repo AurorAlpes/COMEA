@@ -30,24 +30,28 @@ def format_time(iso_time):
             return "En cours"
 
 
-def format_time(iso_time):
-    """
-    Convertit une chaîne de temps ISO 8601 en un format lisible (UTC).
-    Gère les cas avec ou sans fractions de secondes.
-    """
-    if not iso_time:
-        return "En cours"
+def send_email(subject, html_content):
+    sender_email = os.getenv("EMAIL_USER")
+    sender_password = os.getenv("EMAIL_PASS")
+    recipient_email = os.getenv("EMAIL_DEST")
+
+    if not sender_email or not sender_password:
+        print("Erreur : Les variables d'environnement EMAIL_USER et EMAIL_PASS ne sont pas définies.")
+        return
+
+    msg = MIMEText(html_content, 'html')
+    msg['Subject'] = subject
+    msg['From'] = sender_email
+    msg['To'] = recipient_email
+
     try:
-        # Tronquer les fractions excessives à 6 chiffres, si présent
-        if "." in iso_time:
-            iso_time = iso_time.split("Z")[0]  # Supprime 'Z'
-            base_time, fractional = iso_time.split(".")
-            fractional = fractional[:6]  # Garde 6 chiffres max
-            iso_time = f"{base_time}.{fractional}Z"  # Reconstruit
-        return datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d %H:%M:%S (UTC)")
-    except ValueError:
-        # Cas sans fractions de secondes
-        return datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d %H:%M:%S (UTC)")
+        with smtplib.SMTP('ssl0.ovh.net', 587) as server:
+            server.starttls()
+            server.login(sender_email, sender_password)
+            server.send_message(msg)
+            print("E-mail envoyé avec succès !")
+    except Exception as e:
+        print(f"Erreur lors de l'envoi de l'e-mail : {e}")
 
 
 # Route pour gérer le webhook
