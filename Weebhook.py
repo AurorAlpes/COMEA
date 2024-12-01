@@ -46,7 +46,8 @@ def webhook():
         end_timestamp = alert.get("end_timestamp", "Inconnue")  # For resolved alerts
         alert_data = alert.get("data", {})
         valeur = alert_data.get("valeur", "Aucune valeur")  # Valeur
-        message = alert_data.get("message", "Pas de message")  # Message personnalisé
+        description = alert_data.get("description", "Aucune description")  # Description
+        runbook_url = alert_data.get("runbook_url", "Aucun URL de runbook")  # URL du runbook
 
         # Construire le contenu HTML dynamique pour chaque alerte
         html_content = f"""
@@ -59,7 +60,8 @@ def webhook():
                 <p><strong>Date de début :</strong> {timestamp}</p>
                 {f"<p><strong>Date de fin :</strong> {end_timestamp}</p>" if alert_status == "resolved" else ""}
                 <p><strong>Valeur :</strong> {valeur}</p>
-                {f"<p><strong>Message :</strong> {message}</p>" if alert_status == "firing" else ""}
+                <p><strong>Description :</strong> {description}</p>
+                <p><strong>Runbook URL :</strong> <a href="{runbook_url}" target="_blank">{runbook_url}</a></p>
             </div>
         </body>
         </html>
@@ -69,7 +71,6 @@ def webhook():
         send_email(f"Alerte Grafana : {alert_name}", html_content)
 
     return jsonify({"status": "success", "message": "Webhook reçu et traité"}), 200
-
 
 
 # Point d'entrée de l'application
