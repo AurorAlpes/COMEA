@@ -34,43 +34,39 @@ def send_email(subject, html_content):
 @app.route('/webhook', methods=['POST'])
 def webhook():
     data = request.json
-    if not data or "alerts" not in data:
-        return jsonify({"status": "error", "message": "Aucune alerte reçue"}), 400
 
-    alerts = data["alerts"]
+    if not data:
+        return jsonify({"status": "error", "message": "Aucune donnée reçue"}), 400
 
-    for alert in alerts:
-        alert_status = alert.get("status", "unknown")
-        alert_name = alert.get("alertname", "Alerte sans titre")
-        timestamp = alert.get("timestamp", "Inconnue")
-        end_timestamp = alert.get("end_timestamp", "Inconnue")  # For resolved alerts
-        alert_data = alert.get("data", {})
-        valeur = alert_data.get("valeur", "Aucune valeur")  # Valeur
-        description = alert_data.get("description", "Aucune description")  # Description
-        runbook_url = alert_data.get("runbook_url", "Aucun URL de runbook")  # URL du runbook
+    try:
+        # Vérifier que les alertes sont présentes
+        if "alerts" in data and isinstance(data["alerts"], list) and data["alerts"]:
+            # Traiter la première alerte (ou étendre pour plusieurs alertes si nécessaire)
+            first_alert = data["alerts"][0]
 
-        # Construire le contenu HTML dynamique pour chaque alerte
+            # Récupérer la valeur envoyée par Grafana (soit "Valeur" pour firing, soit "C" pour resolved)
+            alert_value = first_alert.get("data", {}).get("value", "Valeur inconnue")
+
+        # Contenu HTML pour l'email
         html_content = f"""
         <html>
         <body style="font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333;">
             <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 10px;">
                 <h2 style="color: #d9534f;">🚨 Alerte Grafana</h2>
-                <p><strong>Nom de l'alerte :</strong> {alert_name}</p>
-                <p><strong>Statut :</strong> {alert_status}</p>
-                <p><strong>Date de début :</strong> {timestamp}</p>
-                {f"<p><strong>Date de fin :</strong> {end_timestamp}</p>" if alert_status == "resolved" else ""}
-                <p><strong>Valeur :</strong> {valeur}</p>
-                <p><strong>Description :</strong> {description}</p>
-                <p><strong>Runbook URL :</strong> <a href="{runbook_url}" target="_blank">{runbook_url}</a></p>
+                <p><strong>Valeur Mesurée :</strong> {alert_value}</p>
             </div>
         </body>
         </html>
         """
 
-        # Envoyer un email pour chaque alerte
-        send_email(f"Alerte Grafana : {alert_name}", html_content)
+        # Envoyer l'email
+        send_email("Alerte Grafana", html_content)
 
-    return jsonify({"status": "success", "message": "Webhook reçu et traité"}), 200
+        return jsonify({"status": "success", "message": "Webhook traité et email envoyé"}), 200
+
+    except Exception as e:
+        print(f"Erreur lors du traitement du webhook : {e}")
+        return jsonify({"status": "error", "message": "Erreur interne lors du traitement"}), 500
 
 
 # Point d'entrée de l'application
