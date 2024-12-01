@@ -43,9 +43,14 @@ def webhook():
         alert_status = alert.get("status", "unknown")
         alert_name = alert.get("alertname", "Alerte sans titre")
         timestamp = alert.get("timestamp", "Inconnue")
+        
+        # Récupérer les valeurs spécifiques à l'alerte
         alert_data = alert.get("data", {})
+        alert_description = alert_data.get("description", "Aucune description")
+        runbook_url = alert_data.get("runbook_url", "")
+        alert_values = alert.get("values", {})
 
-        # Construire un contenu HTML dynamique pour chaque alerte
+        # Construire le contenu HTML dynamique pour chaque alerte
         html_content = f"""
         <html>
         <body style="font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333;">
@@ -54,10 +59,14 @@ def webhook():
                 <p><strong>Nom de l'alerte :</strong> {alert_name}</p>
                 <p><strong>Statut :</strong> {alert_status}</p>
                 <p><strong>Date :</strong> {timestamp}</p>
+                <p><strong>Description :</strong> {alert_description}</p>
+                <p><strong>Runbook URL :</strong> <a href="{runbook_url}" target="_blank">{runbook_url}</a></p>
                 <h3>Données :</h3>
                 <ul>
         """
-        for key, value in alert_data.items():
+"""
+        # Ajouter les valeurs des alertes (par exemple B, C, etc.)
+        for key, value in alert_values.items():
             html_content += f"<li><strong>{key} :</strong> {value}</li>"
 
         html_content += """
@@ -71,7 +80,6 @@ def webhook():
         send_email(f"Alerte Grafana : {alert_name}", html_content)
 
     return jsonify({"status": "success", "message": "Webhook reçu et traité"}), 200
-
 
 # Point d'entrée de l'application
 if __name__ == '__main__':
