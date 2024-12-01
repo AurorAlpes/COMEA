@@ -43,7 +43,7 @@ def grafana_webhook():
         
         # Construire le sujet et le corps de l'e-mail
         subject = f"Grafana Alert: {alert_name}"
-        body = f"Alert Name: {alert_name}\nStatus: {status}\nValue: {value}\nMessage: {message}"
+        body = f"Alert Name: {alert_name}\nStatus: {status}\nValue: {value}\nMessage1: {message1}\nMessage2: {message2}"
         
         # Envoyer l'e-mail
         send_email(subject, body)
