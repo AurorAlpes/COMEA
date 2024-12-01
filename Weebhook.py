@@ -37,11 +37,12 @@ def grafana_webhook():
     if data:
         status = data.get("status", "unknown")
         alert_name = data.get("alerts", [{}])[0].get("labels", {}).get("alertname", "No alert name")
-        message = data.get("alerts", [{}])[0].get("annotations", {}).get("description", "No description")
+        message1 = data.get("alerts", [{}])[0].get("annotations", {}).get("summary", "No description")
+        message2 = data.get("alerts", [{}])[0].get("annotations", {}).get("description", "No description")
         value = data.get("alerts", [{}])[0].get("valueString", "No value provided")
         
         # Construire le sujet et le corps de l'e-mail
-        subject = f"Grafana Alert: {alert_name} - {status}"
+        subject = f"Grafana Alert: {alert_name}"
         body = f"Alert Name: {alert_name}\nStatus: {status}\nValue: {value}\nMessage: {message}"
         
         # Envoyer l'e-mail
