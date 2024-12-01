@@ -35,20 +35,36 @@ def send_email(subject, html_content):
 def grafana_webhook():
     data = request.json
     if data:
-        status = data.get("status", "unknown")
-        alert_name = data.get("alerts", [{}])[0].get("labels", {}).get("alertname", "No alert name")
-        message1 = data.get("alerts", [{}])[0].get("annotations", {}).get("summary", "No description")
-        message2 = data.get("alerts", [{}])[0].get("annotations", {}).get("description", "No description")
-        value = data.get("alerts", [{}])[0].get("valueString", "No value provided")
+        # Récupérer les informations nécessaires
+        status = data.get("status", "unknown")  # "firing" ou "resolved"
+        alert = data.get("alerts", [{}])[0]  # Premier élément de la liste d'alertes
+        alert_name = alert.get("labels", {}).get("alertname", "No alert name")
+        message1 = alert.get("annotations", {}).get("summary", "No description")
+        message2 = alert.get("annotations", {}).get("description", "No description")
+        value = alert.get("valueString", "No value provided")
         
+        # Choisir le message en fonction du statut
+        if status == "firing":
+            message = message1
+        elif status == "resolved":
+            message = message2
+        else:
+            message = "Unknown status"
+
         # Construire le sujet et le corps de l'e-mail
-        subject = f"Grafana Alert: {alert_name}"
-        body = f"Alert Name: {alert_name}\nStatus: {status}\nValue: {value}\nMessage1: {message1}\nMessage2: {message2}"
+        subject = f"Grafana Alert: {alert_name} ({status.capitalize()})"
+        body = (
+            f"Alert Name: {alert_name}\n"
+            f"Status: {status}\n"
+            f"Message: {message}"
+        )
         
         # Envoyer l'e-mail
         send_email(subject, body)
         return "Email sent", 200
+
     return "No data received", 400
+
 
 
 # Point d'entrée de l'application
