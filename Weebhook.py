@@ -35,10 +35,15 @@ def format_time(iso_time):
     Convertit une chaîne de temps ISO 8601 en un format lisible (UTC).
     Gère les cas avec ou sans fractions de secondes.
     """
-    if not iso_time:  # Vérifie si la date est vide ou None
+    if not iso_time:
         return "En cours"
     try:
-        # Cas avec fractions de secondes
+        # Tronquer les fractions excessives à 6 chiffres, si présent
+        if "." in iso_time:
+            iso_time = iso_time.split("Z")[0]  # Supprime 'Z'
+            base_time, fractional = iso_time.split(".")
+            fractional = fractional[:6]  # Garde 6 chiffres max
+            iso_time = f"{base_time}.{fractional}Z"  # Reconstruit
         return datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d %H:%M:%S (UTC)")
     except ValueError:
         # Cas sans fractions de secondes
