@@ -35,14 +35,14 @@ def format_time(iso_time):
     Convertit une chaîne de temps ISO 8601 en un format lisible (UTC).
     Gère les cas avec ou sans fractions de secondes.
     """
-    if iso_time:
-        try:
-            # Cas avec fractions de secondes
-            return datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d %H:%M:%S (UTC)")
-        except ValueError:
-            # Cas sans fractions de secondes
-            return datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d %H:%M:%S (UTC)")
-    return "En cours"
+    if not iso_time:  # Vérifie si la date est vide ou None
+        return "En cours"
+    try:
+        # Cas avec fractions de secondes
+        return datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d %H:%M:%S (UTC)")
+    except ValueError:
+        # Cas sans fractions de secondes
+        return datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d %H:%M:%S (UTC)")
 
 
 # Route pour gérer le webhook
