@@ -46,7 +46,7 @@ def webhook():
         if "alerts" in data and isinstance(data["alerts"], list) and data["alerts"]:
             # Traiter la première alerte
             first_alert = data["alerts"][0]
-
+            test = data["description"]
             # Récupérer les données envoyées dans 'data'
             alert_data = first_alert.get("data", {})
 
@@ -56,7 +56,7 @@ def webhook():
         <body style="font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333;">
             <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 10px;">
                 <h2 style="color: #d9534f;">🚨 Alerte Grafana</h2>
-                <p><strong>Données :</strong></p>
+                <p><strong>Données :</strong> {test}</p>
                 <ul>
         """
 
