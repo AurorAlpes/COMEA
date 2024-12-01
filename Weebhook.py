@@ -64,9 +64,13 @@ def webhook():
                 <h3>Données :</h3>
                 <ul>
         """
-        # Ajouter les valeurs des alertes (par exemple B, C, etc.)
-        for key, value in alert_values.items():
-            html_content += f"<li><strong>{key} :</strong> {value}</li>"
+
+        # Vérifier si alert_values n'est pas vide ou None avant d'ajouter les éléments
+        if alert_values:
+            for key, value in alert_values.items():
+                html_content += f"<li><strong>{key} :</strong> {value}</li>"
+        else:
+            html_content += "<li>Aucune donnée disponible.</li>"
 
         html_content += """
                 </ul>
@@ -79,6 +83,7 @@ def webhook():
         send_email(f"Alerte Grafana : {alert_name}", html_content)
 
     return jsonify({"status": "success", "message": "Webhook reçu et traité"}), 200
+
 
 # Point d'entrée de l'application
 if __name__ == '__main__':
