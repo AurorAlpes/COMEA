@@ -49,7 +49,7 @@ def webhook():
 
     for alert in alerts:
         alert_status = alert.get("status", "inconnu")
-        alert_title = alert.get("alertname", "Alerte sans titre")  # Si `alertname` est disponible, sinon vous pouvez l'ignorer
+        alert_title = alert.get("alertname", "Alerte sans titre")  # Utiliser alertname ici pour le titre
         timestamp = alert.get("startsAt", "Inconnue")  # Ou utilisez `endsAt` selon la disponibilité
         alert_annotations = alert.get("annotations", {})
         alert_description = alert_annotations.get("description", "Aucune description")
@@ -97,6 +97,7 @@ def webhook():
         send_email(f"Alerte Grafana : {alert_title}", html_content)
 
     return jsonify({"status": "success", "message": "Webhook reçu et traité"}), 200
+
 
 
 # Point d'entrée de l'application
