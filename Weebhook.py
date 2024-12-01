@@ -64,7 +64,6 @@ def webhook():
                 <h3>Données :</h3>
                 <ul>
         """
-"""
         # Ajouter les valeurs des alertes (par exemple B, C, etc.)
         for key, value in alert_values.items():
             html_content += f"<li><strong>{key} :</strong> {value}</li>"
