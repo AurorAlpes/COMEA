@@ -62,18 +62,19 @@ def grafana_webhook():
         
         # Déterminer le message à afficher
         if status == "firing":
-            message = f"{message1}\nEnd Time: {ends_at}"
+            message = f"{message1}\n"
         elif status == "resolved":
-            message = f"{message1}\n{message2}\nEnd Time: {ends_at}"
+            message = f"{message2}\n"
         else:
             message = "Unknown status"
 
         # Construire le sujet et le corps de l'e-mail
         subject = f"Grafana Alert: {alert_name} ({status.capitalize()})"
         body = (
-            f"Alert Name: {alert_name}\n"
+            f"Nom d'alerte: {alert_name}\n"
             f"Status: {status}\n"
-            f"Start Time: {starts_at}\n"
+            f"Début d'événement: {starts_at}\n"
+            f"Fin d'événement: {ends_at}\n"
             f"{message}"
         )
         
