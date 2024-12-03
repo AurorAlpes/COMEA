@@ -136,6 +136,7 @@ def grafana_webhook():
         </body>
         </html>
         """
+        body = message.replace("\n", "<br>")
 
         # Envoyer l'e-mail
         send_email(subject, body, is_html=True)  # Indiquer que le contenu est HTML
