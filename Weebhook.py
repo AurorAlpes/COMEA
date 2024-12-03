@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+import locale
 from datetime import datetime
 import os
 import smtplib
@@ -44,7 +45,10 @@ def grafana_webhook():
         message1 = alert.get("annotations", {}).get("summary", "No description")
         message2 = alert.get("annotations", {}).get("description", "No description")
         
-        # Fonction pour formater les heures
+        # Configurer la locale en français
+        locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')  # Pour les systèmes Unix/Linux, sur Windows utilisez 'fr_FR'
+        
+        # Fonction de formatage de la date
         def format_time(iso_time):
             if not iso_time:
                 return "Unknown time"
@@ -55,9 +59,13 @@ def grafana_webhook():
                     milliseconds = milliseconds.rstrip("Z")  # Supprimer le 'Z' à la fin
                     milliseconds = milliseconds[:6]  # Limiter à 6 chiffres
                     iso_time = f"{base_time}.{milliseconds}Z"
-                    return datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d %H:%M:%S (UTC)")
+                    # Formater la date dans le format souhaité
+                    formatted_time = datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%A %d %B %Y à %Hh%M (UTC)")
                 else:
-                    return datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d %H:%M:%S (UTC)")
+                    # Formater la date dans le format souhaité
+                    formatted_time = datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%SZ").strftime("%A %d %B %Y à %Hh%M (UTC)")
+                
+                return formatted_time
             except ValueError:
                 return "Invalid time format"
 
@@ -121,12 +129,15 @@ def grafana_webhook():
                     margin-top: 20px;
                 }}
                 .logo img {{
-                    width: 100px;
+                    width: 250px;
                 }}
             </style>
         </head>
         <body>
             <div class="container">
+                <div class="logo">Service fournie et opéré par: <br>
+                    <img src="https://raw.githubusercontent.com/AurorAlpes/COMEA/b50d6143240d132a583bc5a4a45221bf163a812e/logo%20comea.svg" alt="COMEA">
+                </div>
                 <div class="title">{alert_name}</div>
                 <div class="times">
                     <strong>Début :</strong> {starts_at}<br>
@@ -134,9 +145,6 @@ def grafana_webhook():
                 </div>
                 <div class="separator"></div>
                 <div class="message">{message}</div>
-                <div class="logo">
-                    <img src="https://raw.githubusercontent.com/AurorAlpes/COMEA/b50d6143240d132a583bc5a4a45221bf163a812e/logo%20comea.svg" alt="COMEA">
-                </div>
             </div>
         </body>
         </html>
