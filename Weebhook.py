@@ -139,7 +139,7 @@ def grafana_webhook():
                             margin-top: 20px;
                         }}
                         .logo img {{
-                            width: 100px;
+                            width: 550px;
                         }}
                         .footer {{
                             background-color: #f4f4f4;
@@ -152,7 +152,7 @@ def grafana_webhook():
                             border: 1px solid #ddd;
                         }}
                         .footer img {{
-                            width: 80px;
+                            width: 150px;
                             margin-top: 10px;
                         }}
                     </style>
@@ -169,9 +169,10 @@ def grafana_webhook():
                 
                         <!-- Encadré d'explication -->
                         <div class="footer">
-                            <p><i>Le service est fourni et opéré par COMEA</strong></i>
+                            <p><i>Ce service est fourni et opéré par le COMEA</strong></i>
+                            <img src="https://raw.githubusercontent.com/AurorAlpes/COMEA/b50d6143240d132a583bc5a4a45221bf163a812e/logo%20comea.svg" alt="comea.space">
                             <div class="logo">
-                                <img src="https://raw.githubusercontent.com/AurorAlpes/COMEA/b50d6143240d132a583bc5a4a45221bf163a812e/logo%20comea.svg" alt="COMEA">
+                                <img src="https://raw.githubusercontent.com/AurorAlpes/COMEA/refs/heads/main/Design%20sans%20titre.png" alt="OFRAME, IRAP, CNRS, ONERA, CLS, CEA, THALES ">
                             </div>
                         </div>
                     </div>
