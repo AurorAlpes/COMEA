@@ -63,14 +63,15 @@ def grafana_webhook():
         
         # Déterminer le message à afficher
         if status == "firing":
+            subject = f"{alert_name} en cours - COMEA alerte({status.capitalize()})"
             message = f"{message1}"
         elif status == "resolved":
+            subject = f"[Fin d'événement] {alert_name} - COMEA alerte({status.capitalize()})"
             message = f"{message2}"
         else:
             message = "Unknown status"
 
         # Construire le sujet et le corps de l'e-mail
-        subject = f"Grafana Alert: {alert_name} ({status.capitalize()})"
         body = f"""
         <html>
         <head>
@@ -121,7 +122,7 @@ def grafana_webhook():
         </head>
         <body>
             <div class="container">
-                <div class="title">##### {alert_name} #####</div>
+                <div class="title">{alert_name}</div>
                 <div class="times">
                     <strong>Début :</strong> {starts_at}<br>
                     <strong>Fin :</strong> {ends_at}
@@ -129,7 +130,7 @@ def grafana_webhook():
                 <div class="separator"></div>
                 <div class="message">{message}</div>
                 <div class="logo">
-                    <img src="https://via.placeholder.com/100" alt="Logo Structure">
+                    <img src="https://github.com/AurorAlpes/COMEA/blob/main/logo%20comea.svg" alt="Logo COMEA">
                 </div>
             </div>
         </body>
