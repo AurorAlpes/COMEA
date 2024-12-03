@@ -41,21 +41,26 @@ def grafana_webhook():
         status = data.get("status", "unknown")  # "firing" ou "resolved"
         alert = data.get("alerts", [{}])[0]  # Premier élément de la liste d'alertes
         alert_name = alert.get("labels", {}).get("alertname", "No alert name")
-        message1 = alert.get("annotations", {}).get("summary", "No description").replace("\n", "<br>")
-        message2 = alert.get("annotations", {}).get("description", "No description").replace("\n", "<br>")
+        message1 = alert.get("annotations", {}).get("summary", "No description")
+        message2 = alert.get("annotations", {}).get("description", "No description")
         
         # Fonction pour formater les heures
         def format_time(iso_time):
             if not iso_time:
                 return "Unknown time"
             try:
-                # Traiter les formats avec ou sans millisecondes
+                # Vérifier et normaliser les millisecondes
                 if "." in iso_time:
+                    base_time, milliseconds = iso_time.split(".")
+                    milliseconds = milliseconds.rstrip("Z")  # Supprimer le 'Z' à la fin
+                    milliseconds = milliseconds[:6]  # Limiter à 6 chiffres
+                    iso_time = f"{base_time}.{milliseconds}Z"
                     return datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d %H:%M:%S (UTC)")
                 else:
                     return datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d %H:%M:%S (UTC)")
             except ValueError:
                 return "Invalid time format"
+
         
         # Récupérer les heures de début et de fin
         starts_at = format_time(alert.get("startsAt"))
@@ -130,7 +135,7 @@ def grafana_webhook():
                 <div class="separator"></div>
                 <div class="message">{message}</div>
                 <div class="logo">
-                    <img src="https://github.com/AurorAlpes/COMEA/blob/main/logo%20comea.svg" alt="Logo COMEA">
+                    <img src="https://raw.githubusercontent.com/AurorAlpes/COMEA/b50d6143240d132a583bc5a4a45221bf163a812e/logo%20comea.svg" alt="COMEA">
                 </div>
             </div>
         </body>
