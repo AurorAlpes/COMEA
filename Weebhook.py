@@ -17,7 +17,7 @@ def send_email(subject, content):
         return
 
     # Préparer le message en fonction du type de contenu
-    msg = MIMEText(content, 'html' if is_html else 'plain')
+    msg = MIMEText(content)
     msg['Subject'] = subject
     msg['From'] = sender_email
     msg['To'] = recipient_email
