@@ -41,8 +41,8 @@ def grafana_webhook():
         status = data.get("status", "unknown")  # "firing" ou "resolved"
         alert = data.get("alerts", [{}])[0]  # Premier élément de la liste d'alertes
         alert_name = alert.get("labels", {}).get("alertname", "No alert name")
-        message1 = alert.get("annotations", {}).get("summary", "No description")
-        message2 = alert.get("annotations", {}).get("description", "No description")
+        message1 = alert.get("annotations", {}).get("summary", "No description").replace("\n", "<br>")
+        message2 = alert.get("annotations", {}).get("description", "No description").replace("\n", "<br>")
         
         # Fonction pour formater les heures
         def format_time(iso_time):
@@ -63,10 +63,10 @@ def grafana_webhook():
         
         # Déterminer le message à afficher
         if status == "firing":
-            subject = f"{alert_name} en cours - COMEA alerte({status.capitalize()})"
+            subject = f"{alert_name} en cours - COMEA alerte"
             message = f"{message1}"
         elif status == "resolved":
-            subject = f"[Fin d'événement] {alert_name} - COMEA alerte({status.capitalize()})"
+            subject = f"[Fin d'événement] {alert_name} - COMEA alerte"
             message = f"{message2}"
         else:
             message = "Unknown status"
@@ -136,7 +136,6 @@ def grafana_webhook():
         </body>
         </html>
         """
-        body = message.replace("\n", "<br>")
 
         # Envoyer l'e-mail
         send_email(subject, body, is_html=True)  # Indiquer que le contenu est HTML
