@@ -7,37 +7,29 @@ from email.mime.text import MIMEText
 app = Flask(__name__)
 
 
-def send_email(subject, html_content):
-    # Charger les informations d'expéditeur et destinataire
+def send_email(subject, content, is_html=False):
     sender_email = os.getenv("EMAIL_USER")
     sender_password = os.getenv("EMAIL_PASS")
     recipient_email = os.getenv("EMAIL_DEST")
 
-    # Vérifications des paramètres
     if not sender_email or not sender_password:
         print("Erreur : Les variables d'environnement EMAIL_USER et EMAIL_PASS ne sont pas définies.")
         return
-    if not recipient_email:
-        print("Erreur : La variable d'environnement EMAIL_DEST n'est pas définie.")
-        return
 
-    # Préparer le contenu du message
+    # Préparer le message en fonction du type de contenu
+    msg = MIMEText(content, 'html' if is_html else 'plain')
+    msg['Subject'] = subject
+    msg['From'] = sender_email
+    msg['To'] = recipient_email
+
     try:
-        msg = MIMEText(html_content, 'html')
-        msg['Subject'] = subject
-        msg['From'] = sender_email
-        msg['To'] = recipient_email
-
-        # Connexion au serveur SMTP
         with smtplib.SMTP('ssl0.ovh.net', 587) as server:
-            server.starttls()  # Activer le TLS
-            server.login(sender_email, sender_password)  # Authentification
-            server.send_message(msg)  # Envoyer l'e-mail
+            server.starttls()
+            server.login(sender_email, sender_password)
+            server.send_message(msg)
             print("E-mail envoyé avec succès !")
-    except smtplib.SMTPException as smtp_error:
-        print(f"Erreur SMTP : {smtp_error}")
     except Exception as e:
-        print(f"Erreur inattendue lors de l'envoi de l'e-mail : {e}")
+        print(f"Erreur lors de l'envoi de l'e-mail : {e}")
 
 
 
