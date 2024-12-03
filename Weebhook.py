@@ -8,27 +8,37 @@ app = Flask(__name__)
 
 
 def send_email(subject, html_content):
+    # Charger les informations d'expéditeur et destinataire
     sender_email = os.getenv("EMAIL_USER")
     sender_password = os.getenv("EMAIL_PASS")
     recipient_email = os.getenv("EMAIL_DEST")
 
+    # Vérifications des paramètres
     if not sender_email or not sender_password:
         print("Erreur : Les variables d'environnement EMAIL_USER et EMAIL_PASS ne sont pas définies.")
         return
+    if not recipient_email:
+        print("Erreur : La variable d'environnement EMAIL_DEST n'est pas définie.")
+        return
 
-    msg = MIMEText(html_content, 'html')
-    msg['Subject'] = subject
-    msg['From'] = sender_email
-    msg['To'] = recipient_email
-
+    # Préparer le contenu du message
     try:
+        msg = MIMEText(html_content, 'html')
+        msg['Subject'] = subject
+        msg['From'] = sender_email
+        msg['To'] = recipient_email
+
+        # Connexion au serveur SMTP
         with smtplib.SMTP('ssl0.ovh.net', 587) as server:
-            server.starttls()
-            server.login(sender_email, sender_password)
-            server.send_message(msg)
+            server.starttls()  # Activer le TLS
+            server.login(sender_email, sender_password)  # Authentification
+            server.send_message(msg)  # Envoyer l'e-mail
             print("E-mail envoyé avec succès !")
+    except smtplib.SMTPException as smtp_error:
+        print(f"Erreur SMTP : {smtp_error}")
     except Exception as e:
-        print(f"Erreur lors de l'envoi de l'e-mail : {e}")
+        print(f"Erreur inattendue lors de l'envoi de l'e-mail : {e}")
+
 
 
 # Route pour gérer le webhook
@@ -141,13 +151,6 @@ def grafana_webhook():
 
     return "No data received", 400
 
-
-def send_email(subject, body, is_html=False):
-    # Dépend de votre bibliothèque SMTP
-    msg = MIMEMultipart("alternative") if is_html else MIMEMultipart()
-    msg["Subject"] = subject
-    msg.attach(MIMEText(body, "html" if is_html else "plain"))
-    # Ajoutez le reste de la logique SMTP
 
 
 # Point d'entrée de l'application
