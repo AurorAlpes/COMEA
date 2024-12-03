@@ -62,28 +62,92 @@ def grafana_webhook():
         
         # Déterminer le message à afficher
         if status == "firing":
-            message = f"{message1}\n"
+            message = f"{message1}"
         elif status == "resolved":
-            message = f"{message2}\n"
+            message = f"{message2}"
         else:
             message = "Unknown status"
 
         # Construire le sujet et le corps de l'e-mail
         subject = f"Grafana Alert: {alert_name} ({status.capitalize()})"
-        body = (
-            f"Nom d'alerte: {alert_name}\n"
-            f"Status: {status}\n"
-            f"Début d'événement: {starts_at}\n"
-            f"Fin d'événement: {ends_at}\n"
-            f"{message}"
-        )
-        
+        body = f"""
+        <html>
+        <head>
+            <style>
+                body {{
+                    font-family: Arial, sans-serif;
+                    color: #333;
+                    background-color: #f9f9f9;
+                    margin: 0;
+                    padding: 20px;
+                }}
+                .container {{
+                    background: white;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    padding: 20px;
+                    max-width: 600px;
+                    margin: auto;
+                }}
+                .title {{
+                    font-size: 24px;
+                    font-weight: bold;
+                    text-align: center;
+                    margin-bottom: 20px;
+                }}
+                .times {{
+                    text-align: center;
+                    font-size: 16px;
+                    margin-bottom: 20px;
+                }}
+                .separator {{
+                    border-top: 2px solid #ddd;
+                    margin: 20px 0;
+                }}
+                .message {{
+                    text-align: center;
+                    font-size: 16px;
+                    margin-bottom: 20px;
+                }}
+                .logo {{
+                    text-align: center;
+                    margin-top: 20px;
+                }}
+                .logo img {{
+                    width: 100px;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="title">##### {alert_name} #####</div>
+                <div class="times">
+                    <strong>Début :</strong> {starts_at}<br>
+                    <strong>Fin :</strong> {ends_at}
+                </div>
+                <div class="separator"></div>
+                <div class="message">{message}</div>
+                <div class="logo">
+                    <img src="https://via.placeholder.com/100" alt="Logo Structure">
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+
         # Envoyer l'e-mail
-        send_email(subject, body)
+        send_email(subject, body, is_html=True)
         return "Email sent", 200
 
     return "No data received", 400
 
+
+def send_email(subject, body, is_html=False):
+    # Dépend de votre bibliothèque SMTP
+    msg = MIMEMultipart("alternative") if is_html else MIMEMultipart()
+    msg["Subject"] = subject
+    msg.attach(MIMEText(body, "html" if is_html else "plain"))
+    # Ajoutez le reste de la logique SMTP
 
 
 # Point d'entrée de l'application
