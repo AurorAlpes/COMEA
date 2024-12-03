@@ -96,69 +96,88 @@ def grafana_webhook():
 
         # Construire le sujet et le corps de l'e-mail
         body = f"""
-        <html>
-        <head>
-            <style>
-                body {{
-                    font-family: Arial, sans-serif;
-                    color: #333;
-                    background-color: #f9f9f9;
-                    margin: 0;
-                    padding: 20px;
-                }}
-                .container {{
-                    background: white;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                    padding: 20px;
-                    max-width: 600px;
-                    margin: auto;
-                }}
-                .title {{
-                    font-size: 24px;
-                    font-weight: bold;
-                    text-align: center;
-                    margin-bottom: 20px;
-                }}
-                .times {{
-                    text-align: center;
-                    font-size: 16px;
-                    margin-bottom: 20px;
-                }}
-                .separator {{
-                    border-top: 2px solid #ddd;
-                    margin: 20px 0;
-                }}
-                .message {{
-                    text-align: center;
-                    font-size: 16px;
-                    margin-bottom: 20px;
-                }}
-                .logo {{
-                    text-align: center;
-                    margin-top: 20px;
-                }}
-                .logo img {{
-                    width: 250px;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="logo">Service fournie et opéré par: <br>
-                    <img src="https://raw.githubusercontent.com/AurorAlpes/COMEA/b50d6143240d132a583bc5a4a45221bf163a812e/logo%20comea.svg" alt="COMEA">
-                </div>
-                <div class="title">{alert_name}</div>
-                <div class="times">
-                    <strong>Début :</strong> {starts_at}<br>
-                    <strong>Fin :</strong> {ends_at}
-                </div>
-                <div class="separator"></div>
-                <div class="message">{message}</div>
-            </div>
-        </body>
-        </html>
-        """
+                <html>
+                <head>
+                    <style>
+                        body {{
+                            font-family: Arial, sans-serif;
+                            color: #333;
+                            background-color: #f9f9f9;
+                            margin: 0;
+                            padding: 20px;
+                        }}
+                        .container {{
+                            background: white;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                            padding: 20px;
+                            max-width: 600px;
+                            margin: auto;
+                        }}
+                        .title {{
+                            font-size: 24px;
+                            font-weight: bold;
+                            text-align: center;
+                            margin-bottom: 20px;
+                        }}
+                        .times {{
+                            text-align: center;
+                            font-size: 16px;
+                            margin-bottom: 20px;
+                        }}
+                        .separator {{
+                            border-top: 2px solid #ddd;
+                            margin: 20px 0;
+                        }}
+                        .message {{
+                            text-align: center;
+                            font-size: 16px;
+                            margin-bottom: 20px;
+                        }}
+                        .logo {{
+                            text-align: center;
+                            margin-top: 20px;
+                        }}
+                        .logo img {{
+                            width: 100px;
+                        }}
+                        .footer {{
+                            background-color: #f4f4f4;
+                            border-radius: 8px;
+                            padding: 10px;
+                            text-align: center;
+                            margin-top: 20px;
+                            font-size: 14px;
+                            color: #555;
+                            border: 1px solid #ddd;
+                        }}
+                        .footer img {{
+                            width: 80px;
+                            margin-top: 10px;
+                        }}
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="title">{alert_name}</div>
+                        <div class="times">
+                            <strong>Début :</strong> {starts_at}<br>
+                            <strong>Fin :</strong> {ends_at}
+                        </div>
+                        <div class="separator"></div>
+                        <div class="message">{message}</div>
+                
+                        <!-- Encadré d'explication -->
+                        <div class="footer">
+                            <p><i>Le service est fourni et opéré par COMEA</strong></i>
+                            <div class="logo">
+                                <img src="https://raw.githubusercontent.com/AurorAlpes/COMEA/b50d6143240d132a583bc5a4a45221bf163a812e/logo%20comea.svg" alt="COMEA">
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """
 
         # Envoyer l'e-mail
         send_email(subject, body, is_html=True)  # Indiquer que le contenu est HTML
