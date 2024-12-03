@@ -7,7 +7,7 @@ from email.mime.text import MIMEText
 app = Flask(__name__)
 
 
-def send_email(subject, content):
+def send_email(subject, content, is_html=False):
     sender_email = os.getenv("EMAIL_USER")
     sender_password = os.getenv("EMAIL_PASS")
     recipient_email = os.getenv("EMAIL_DEST")
@@ -17,7 +17,7 @@ def send_email(subject, content):
         return
 
     # Préparer le message en fonction du type de contenu
-    msg = MIMEText(content)
+    msg = MIMEText(content, 'html' if is_html else 'plain')
     msg['Subject'] = subject
     msg['From'] = sender_email
     msg['To'] = recipient_email
@@ -30,7 +30,6 @@ def send_email(subject, content):
             print("E-mail envoyé avec succès !")
     except Exception as e:
         print(f"Erreur lors de l'envoi de l'e-mail : {e}")
-
 
 
 # Route pour gérer le webhook
