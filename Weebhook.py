@@ -44,9 +44,7 @@ def grafana_webhook():
         alert_name = alert.get("labels", {}).get("alertname", "No alert name")
         message1 = alert.get("annotations", {}).get("summary", "No description")
         message2 = alert.get("annotations", {}).get("description", "No description")
-        
-        # Configurer la locale en français
-        locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')  # Pour les systèmes Unix/Linux, sur Windows utilisez 'fr_FR'
+
         
         # Fonction de formatage de la date
         def format_time(iso_time):
@@ -59,13 +57,25 @@ def grafana_webhook():
                     milliseconds = milliseconds.rstrip("Z")  # Supprimer le 'Z' à la fin
                     milliseconds = milliseconds[:6]  # Limiter à 6 chiffres
                     iso_time = f"{base_time}.{milliseconds}Z"
-                    # Formater la date dans le format souhaité
-                    formatted_time = datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%A %d %B %Y à %Hh%M (UTC)")
-                else:
-                    # Formater la date dans le format souhaité
-                    formatted_time = datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%SZ").strftime("%A %d %B %Y à %Hh%M (UTC)")
                 
-                return formatted_time
+                # Conversion de la chaîne de date en objet datetime
+                date_obj = datetime.strptime(iso_time, "%Y-%m-%dT%H:%M:%S.%fZ" if "." in iso_time else "%Y-%m-%dT%H:%M:%SZ")
+                
+                # Listes personnalisées pour les jours et mois en français
+                days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
+                months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]
+                
+                # Extraire les composants de la date
+                day_name = days[date_obj.weekday()]  # Nom du jour
+                day = date_obj.day  # Jour du mois
+                month_name = months[date_obj.month - 1]  # Nom du mois
+                year = date_obj.year  # Année
+                hour = date_obj.strftime("%H")  # Heure
+                minute = date_obj.strftime("%M")  # Minute
+                
+                # Retourner la date formatée
+                return f"{day_name} {day} {month_name} {year} à {hour}h{minute} (UTC)"
+            
             except ValueError:
                 return "Invalid time format"
 
