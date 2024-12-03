@@ -137,7 +137,7 @@ def grafana_webhook():
         """
 
         # Envoyer l'e-mail
-        send_email(subject, body)
+        send_email(subject, body, is_html=True)  # Indiquer que le contenu est HTML
         return "Email sent", 200
 
     return "No data received", 400
