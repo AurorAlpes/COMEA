@@ -138,9 +138,6 @@ def grafana_webhook():
                             text-align: center;
                             margin-top: 20px;
                         }}
-                        .logo img {{
-                            width: 150px;
-                        }}
                         .footer {{
                             background-color: #f4f4f4;
                             border-radius: 8px;
@@ -151,9 +148,13 @@ def grafana_webhook():
                             color: #555;
                             border: 1px solid #ddd;
                         }}
-                        .membres {{
-                            width: 550px;
-                            margin-top: 10px;
+                        .logo img {{
+                            width: 150px;
+                            margin: 10px 0;
+                        }}
+                        .bandeau img {{
+                            width: 95%;
+                            height: auto;
                         }}
                     </style>
                 </head>
@@ -173,7 +174,7 @@ def grafana_webhook():
                             <div class="logo">
                                 <img src="https://raw.githubusercontent.com/AurorAlpes/COMEA/b50d6143240d132a583bc5a4a45221bf163a812e/logo%20comea.svg" alt="comea.space">
                             </div>
-                            <div class="membres">
+                            <div class="bandeau">
                                 <img src="https://raw.githubusercontent.com/AurorAlpes/COMEA/refs/heads/main/Design%20sans%20titre.png" alt="OFRAME, IRAP, CNRS, ONERA, CLS, CEA, THALES ">
                             </div>
                         </div>
