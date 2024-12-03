@@ -7,7 +7,7 @@ from email.mime.text import MIMEText
 app = Flask(__name__)
 
 
-def send_email(subject, content, is_html=False):
+def send_email(subject, content):
     sender_email = os.getenv("EMAIL_USER")
     sender_password = os.getenv("EMAIL_PASS")
     recipient_email = os.getenv("EMAIL_DEST")
@@ -138,7 +138,7 @@ def grafana_webhook():
         """
 
         # Envoyer l'e-mail
-        send_email(subject, body, is_html=True)
+        send_email(subject, body)
         return "Email sent", 200
 
     return "No data received", 400
