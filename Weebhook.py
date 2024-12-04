@@ -37,6 +37,7 @@ def send_email(subject, content, is_html=False):
 @app.route("/webhook", methods=["POST"])
 def grafana_webhook():
     data = request.json
+    print("Données reçues :", data)
     if data:
         # Récupérer les informations nécessaires
         status = data.get("status", "unknown")  # "firing" ou "resolved"
@@ -80,19 +81,26 @@ def grafana_webhook():
                 return "Invalid time format"
 
         
-        # Récupérer les heures de début et de fin
-        starts_at = format_time(alert.get("startsAt"))
-        ends_at = format_time(alert.get("endsAt")) if status == "resolved" else "En cours"
-        
         # Déterminer le message à afficher
         if status == "firing":
+            starts_at = format_time(alert.get("startsAt", ""))
+            ends_at = "En cours"
             subject = f"{alert_name} en cours - COMEA alerte"
             message = f"{message1}"
         elif status == "resolved":
+            # Assurer que les heures sont distinctes et correctes
+            starts_at = format_time(alert.get("startsAt", ""))
+            ends_at = format_time(alert.get("endsAt", ""))
             subject = f"[Fin d'événement] {alert_name} - COMEA alerte"
             message = f"{message2}"
         else:
-            message = "Unknown status"
+            starts_at = "Inconnu"
+            ends_at = "Inconnu"
+            subject = "Ce mail est un bug - COMEA alerte"
+            message = "Aucune donnée disponible."
+
+        print(f"StartsAt formaté : {starts_at}")
+        print(f"EndsAt formaté : {ends_at}")
 
         # Construire le sujet et le corps de l'e-mail
         body = f"""
