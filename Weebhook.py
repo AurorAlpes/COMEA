@@ -129,7 +129,7 @@ def grafana_webhook():
                             margin-bottom: 20px;
                         }}
                         .times {{
-                            text-align: center;
+                            text-align: left;
                             font-size: 16px;
                             margin-bottom: 20px;
                         }}
@@ -138,7 +138,7 @@ def grafana_webhook():
                             margin: 20px 0;
                         }}
                         .message {{
-                            text-align: center;
+                            text-align: left;
                             font-size: 16px;
                             margin-bottom: 20px;
                         }}
@@ -149,7 +149,7 @@ def grafana_webhook():
                         .footer {{
                             background-color: #f4f4f4;
                             border-radius: 8px;
-                            padding: 10px;
+                            padding: 5px;
                             text-align: center;
                             margin-top: 20px;
                             font-size: 14px;
