@@ -13,7 +13,7 @@ def send_email(subject, content, is_html=False):
     sender_password = os.getenv("EMAIL_PASS")
     recipient_email = os.getenv("EMAIL_DEST")
 
-    if not sender_email or not sender_password:
+    if not sender_email or not sender_password: 
         print("Erreur : Les variables d'environnement EMAIL_USER et EMAIL_PASS ne sont pas définies.")
         return
 
