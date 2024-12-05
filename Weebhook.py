@@ -158,7 +158,7 @@ def grafana_webhook():
                         }}
                         .logo img {{
                             width: 150px;
-                            margin: 10px 0;
+                            margin: 3px 0;
                         }}
                         .bandeau img {{
                             width: 95%;
